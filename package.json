@@ -1,0 +1,19 @@
+{
+  "name": "gitcad-agent",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "GitAgent-powered OpenGeometry CAD generation workflow for the Lyzr GitAgent challenge.",
+  "scripts": {
+    "generate": "node scripts/gitcad-generate.mjs",
+    "workflow": "node scripts/gitcad-workflow.mjs",
+    "workflow:llm": "node scripts/gitcad-llm-workflow.mjs",
+    "validate": "node scripts/gitcad-generate.mjs",
+    "dev": "vite --config vite.config.js",
+    "build": "vite build --config vite.config.js"
+  },
+  "dependencies": {
+    "opengeometry": "^2.0.9",
+    "three": "^0.168.0",
+    "vite": "^6.4.2"
+  }
+}

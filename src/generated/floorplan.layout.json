@@ -1,0 +1,311 @@
+{
+  "projectName": "gitcad_apartment_floorplan",
+  "units": "meters",
+  "building": {
+    "x": 0,
+    "z": 0,
+    "width": 12,
+    "depth": 8
+  },
+  "wallDefaults": {
+    "thickness": 0.28,
+    "height": 3
+  },
+  "rooms": [
+    {
+      "id": "living_room",
+      "name": "Living Room",
+      "x": 0,
+      "z": 0,
+      "width": 6,
+      "depth": 4,
+      "color": 14281427
+    },
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "x": 6,
+      "z": 0,
+      "width": 6,
+      "depth": 4,
+      "color": 13689587
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "x": 0,
+      "z": 4,
+      "width": 6,
+      "depth": 4,
+      "color": 16573901
+    },
+    {
+      "id": "bathroom",
+      "name": "Bathroom",
+      "x": 6,
+      "z": 4,
+      "width": 6,
+      "depth": 4,
+      "color": 14275305
+    }
+  ],
+  "walls": [
+    {
+      "id": "wall_1",
+      "start": [
+        0,
+        0
+      ],
+      "end": [
+        6,
+        0
+      ],
+      "roomIds": [
+        "living_room"
+      ],
+      "sides": {
+        "living_room": "north"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_2",
+      "start": [
+        6,
+        0
+      ],
+      "end": [
+        6,
+        4
+      ],
+      "roomIds": [
+        "living_room",
+        "bedroom"
+      ],
+      "sides": {
+        "living_room": "east",
+        "bedroom": "west"
+      },
+      "exterior": false
+    },
+    {
+      "id": "wall_3",
+      "start": [
+        6,
+        4
+      ],
+      "end": [
+        0,
+        4
+      ],
+      "roomIds": [
+        "living_room",
+        "kitchen"
+      ],
+      "sides": {
+        "living_room": "south",
+        "kitchen": "north"
+      },
+      "exterior": false
+    },
+    {
+      "id": "wall_4",
+      "start": [
+        0,
+        4
+      ],
+      "end": [
+        0,
+        0
+      ],
+      "roomIds": [
+        "living_room"
+      ],
+      "sides": {
+        "living_room": "west"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_5",
+      "start": [
+        6,
+        0
+      ],
+      "end": [
+        12,
+        0
+      ],
+      "roomIds": [
+        "bedroom"
+      ],
+      "sides": {
+        "bedroom": "north"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_6",
+      "start": [
+        12,
+        0
+      ],
+      "end": [
+        12,
+        4
+      ],
+      "roomIds": [
+        "bedroom"
+      ],
+      "sides": {
+        "bedroom": "east"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_7",
+      "start": [
+        12,
+        4
+      ],
+      "end": [
+        6,
+        4
+      ],
+      "roomIds": [
+        "bedroom",
+        "bathroom"
+      ],
+      "sides": {
+        "bedroom": "south",
+        "bathroom": "north"
+      },
+      "exterior": false
+    },
+    {
+      "id": "wall_8",
+      "start": [
+        6,
+        4
+      ],
+      "end": [
+        6,
+        8
+      ],
+      "roomIds": [
+        "kitchen",
+        "bathroom"
+      ],
+      "sides": {
+        "kitchen": "east",
+        "bathroom": "west"
+      },
+      "exterior": false
+    },
+    {
+      "id": "wall_9",
+      "start": [
+        6,
+        8
+      ],
+      "end": [
+        0,
+        8
+      ],
+      "roomIds": [
+        "kitchen"
+      ],
+      "sides": {
+        "kitchen": "south"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_10",
+      "start": [
+        0,
+        8
+      ],
+      "end": [
+        0,
+        4
+      ],
+      "roomIds": [
+        "kitchen"
+      ],
+      "sides": {
+        "kitchen": "west"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_11",
+      "start": [
+        12,
+        4
+      ],
+      "end": [
+        12,
+        8
+      ],
+      "roomIds": [
+        "bathroom"
+      ],
+      "sides": {
+        "bathroom": "east"
+      },
+      "exterior": true
+    },
+    {
+      "id": "wall_12",
+      "start": [
+        12,
+        8
+      ],
+      "end": [
+        6,
+        8
+      ],
+      "roomIds": [
+        "bathroom"
+      ],
+      "sides": {
+        "bathroom": "south"
+      },
+      "exterior": true
+    }
+  ],
+  "doors": [
+    {
+      "id": "door_1",
+      "type": "door",
+      "hostWallId": "wall_9",
+      "width": 1,
+      "station": 3,
+      "height": 2.1,
+      "label": "Main Door"
+    }
+  ],
+  "windows": [
+    {
+      "id": "window_1",
+      "type": "window",
+      "hostWallId": "wall_1",
+      "width": 1.2,
+      "station": 2.0999999999999996,
+      "height": 1,
+      "sillHeight": 0.9,
+      "label": "Window 1"
+    },
+    {
+      "id": "window_2",
+      "type": "window",
+      "hostWallId": "wall_6",
+      "width": 1.2,
+      "station": 2.6,
+      "height": 1,
+      "sillHeight": 0.9,
+      "label": "Window 2"
+    }
+  ]
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>GitCAD Agent Preview</title>
+  <link rel="icon" href="data:,">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GitAgent-generated OpenGeometry floorplan preview">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #f4f1ea;
+      color: #191815;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    #root {
+      display: grid;
+      grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+      height: 100vh;
+    }
+
+    aside {
+      border-right: 1px solid rgba(25, 24, 21, 0.12);
+      background: #fbfaf7;
+      padding: 22px;
+      overflow-y: auto;
+    }
+
+    main {
+      position: relative;
+      overflow: hidden;
+      background: #ebe6dc;
+    }
+
+    #app {
+      position: absolute;
+      inset: 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      margin: 8px 0 20px;
+      color: rgba(25, 24, 21, 0.66);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .section {
+      border-top: 1px solid rgba(25, 24, 21, 0.1);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    .label {
+      color: rgba(25, 24, 21, 0.52);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .metric {
+      min-height: 66px;
+      border: 1px solid rgba(25, 24, 21, 0.1);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 10px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .room-list,
+    .artifact-list {
+      display: grid;
+      gap: 8px;
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .room-list li,
+    .artifact-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 34px;
+      border: 1px solid rgba(25, 24, 21, 0.1);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      margin-top: 10px;
+      border-radius: 999px;
+      background: #e7f4ea;
+      color: #176a31;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      display: inline-flex;
+      gap: 6px;
+      border: 1px solid rgba(25, 24, 21, 0.12);
+      border-radius: 8px;
+      background: rgba(251, 250, 247, 0.92);
+      padding: 4px;
+      backdrop-filter: blur(12px);
+    }
+
+    button {
+      min-width: 64px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: rgba(25, 24, 21, 0.68);
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.active {
+      background: #191815;
+      color: #ffffff;
+    }
+
+    @media (max-width: 800px) {
+      #root {
+        grid-template-columns: 1fr;
+        grid-template-rows: 42vh 58vh;
+      }
+
+      aside {
+        border-right: 0;
+        border-bottom: 1px solid rgba(25, 24, 21, 0.12);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root">
+    <aside>
+      <h1>GitCAD Agent</h1>
+      <p class="subhead">A GitAgent-style workflow generated this OpenGeometry floorplan from a constrained architectural prompt.</p>
+
+      <div class="label">Validation</div>
+      <div class="status" id="status">PASS</div>
+
+      <div class="section">
+        <div class="label">Metrics</div>
+        <div class="metric-grid">
+          <div class="metric">Building<strong id="building-size">-</strong></div>
+          <div class="metric">Rooms<strong id="room-count">-</strong></div>
+          <div class="metric">Walls<strong id="wall-count">-</strong></div>
+          <div class="metric">Openings<strong id="opening-count">-</strong></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="label">Rooms</div>
+        <ul class="room-list" id="rooms"></ul>
+      </div>
+
+      <div class="section">
+        <div class="label">Generated Artifacts</div>
+        <ul class="artifact-list">
+          <li><span>floorplan.spec.json</span><span>intent</span></li>
+          <li><span>floorplan.layout.json</span><span>geometry</span></li>
+          <li><span>floorplan.ts</span><span>renderer</span></li>
+          <li><span>geometry-report.md</span><span>checks</span></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <div class="toolbar" aria-label="View mode">
+        <button id="plan-button" class="active" type="button">Plan</button>
+        <button id="model-button" type="button">Model</button>
+      </div>
+      <div id="app"></div>
+    </main>
+  </div>
+
+  <script type="module">
+    import wasmURL from 'opengeometry/opengeometry_bg.wasm?url';
+    import { layout, renderGeneratedFloorplan } from '../../src/generated/floorplan.ts';
+
+    let mode = 'plan';
+    let rendered;
+
+    function updateSummary() {
+      document.getElementById('building-size').textContent = `${layout.building.width} x ${layout.building.depth}m`;
+      document.getElementById('room-count').textContent = layout.rooms.length;
+      document.getElementById('wall-count').textContent = layout.walls.length;
+      document.getElementById('opening-count').textContent = layout.doors.length + layout.windows.length;
+
+      const rooms = document.getElementById('rooms');
+      rooms.replaceChildren(...layout.rooms.map((room) => {
+        const item = document.createElement('li');
+        const name = document.createElement('span');
+        const size = document.createElement('span');
+        name.textContent = room.name;
+        size.textContent = `${room.width} x ${room.depth}m`;
+        item.append(name, size);
+        return item;
+      }));
+    }
+
+    async function render() {
+      const container = document.getElementById('app');
+      rendered?.dispose?.();
+      container.replaceChildren();
+      rendered = await renderGeneratedFloorplan(container, { mode, wasmURL });
+    }
+
+    async function setMode(nextMode) {
+      mode = nextMode;
+      document.getElementById('plan-button').classList.toggle('active', mode === 'plan');
+      document.getElementById('model-button').classList.toggle('active', mode === 'model');
+      await render();
+    }
+
+    document.getElementById('plan-button').addEventListener('click', () => setMode('plan'));
+    document.getElementById('model-button').addEventListener('click', () => setMode('model'));
+
+    updateSummary();
+    await render();
+  </script>
+</body>
+
+</html>

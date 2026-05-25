@@ -1,0 +1,72 @@
+spec_version: "0.1.0"
+name: gitcad-agent
+version: "0.1.0"
+description: Multi-agent GitCAD workflow that generates validated OpenGeometry floorplans from constrained architectural prompts.
+author: TheHouseKraft
+license: MIT
+
+model:
+  preferred: "google:gemini-2.0-flash"
+  fallback:
+    - "anthropic:claude-sonnet-4-5-20251001"
+    - "openai:gpt-4o"
+  constraints:
+    temperature: 0.2
+    max_tokens: 4096
+
+skills:
+  - cad-generation
+  - geometry-validation
+
+tools:
+  - cli
+  - read
+  - write
+  - memory
+  - run_validation
+  - git_diff
+
+runtime:
+  max_turns: 8
+  timeout: 120
+  constraints:
+    temperature: 0.2
+  env:
+    optional:
+      - OPENROUTER_API_KEY
+      - ANTHROPIC_API_KEY
+      - OPENAI_API_KEY
+      - GEMINI_API_KEY
+      - OPENROUTER_SITE_URL
+      - OPENROUTER_SITE_NAME
+      - GITCAD_MODEL_PROVIDER
+      - GITCAD_MODEL
+      - GITCAD_FALLBACK_MODEL
+      - GITCAD_MAX_REPAIR_ATTEMPTS
+      - GITCAD_LLM_REQUIRED
+
+workspace:
+  generated_dir: src/generated
+  preview: examples/src/gitcad-agent.html
+  validation_command: npm run generate
+
+delegation:
+  mode: workflow
+  agents:
+    - repo-inspector
+    - spec-parser
+    - geometry-planner
+    - code-generator
+    - validator
+    - repair
+    - reporter
+
+config:
+  providers:
+    openrouter:
+      enabled: true
+      api_key_env: OPENROUTER_API_KEY
+      site_url_env: OPENROUTER_SITE_URL
+      site_name_env: OPENROUTER_SITE_NAME
+      model: "google/gemini-2.5-pro"
+      note: "OpenRouter is configured for the project adapter; GitAgent docs list google, anthropic, and openai as native provider strings."

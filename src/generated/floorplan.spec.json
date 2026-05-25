@@ -1,0 +1,63 @@
+{
+  "projectName": "gitcad_apartment_floorplan",
+  "sourcePrompt": "Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows.",
+  "units": "meters",
+  "building": {
+    "width": 12,
+    "depth": 8
+  },
+  "rooms": [
+    {
+      "id": "living_room",
+      "name": "Living Room",
+      "approxWidth": 6,
+      "approxDepth": 4,
+      "color": 14281427
+    },
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "approxWidth": 6,
+      "approxDepth": 4,
+      "color": 13689587
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen",
+      "approxWidth": 4,
+      "approxDepth": 4,
+      "color": 16573901
+    },
+    {
+      "id": "bathroom",
+      "name": "Bathroom",
+      "approxWidth": 3,
+      "approxDepth": 2.5,
+      "color": 14275305
+    }
+  ],
+  "openings": {
+    "doors": [
+      {
+        "id": "door_1",
+        "type": "door",
+        "width": 1,
+        "preferredWall": "south"
+      }
+    ],
+    "windows": [
+      {
+        "id": "window_1",
+        "type": "window",
+        "width": 1.2,
+        "preferredWall": "north"
+      },
+      {
+        "id": "window_2",
+        "type": "window",
+        "width": 1.2,
+        "preferredWall": "east"
+      }
+    ]
+  }
+}

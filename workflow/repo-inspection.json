@@ -1,0 +1,17 @@
+{
+  "prompt": "Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows.",
+  "agentRoot": ".",
+  "openGeometryImport": "opengeometry",
+  "generatedDir": "src/generated",
+  "preview": "examples/src/gitcad-agent.html",
+  "validationCommand": "npm run generate",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "requiredAgentFiles": [
+    "agent.yaml",
+    "SOUL.md",
+    "RULES.md",
+    "skills/cad-generation/SKILL.md",
+    "skills/geometry-validation/SKILL.md"
+  ]
+}

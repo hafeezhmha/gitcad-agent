@@ -1,0 +1,11 @@
+name: git_diff
+description: Show repository changes made by the GitCAD agent workflow.
+input_schema:
+  properties:
+    path:
+      type: string
+      description: Optional path to diff. Defaults to the current GitCAD agent folder.
+  required: []
+implementation:
+  script: scripts/git-diff.sh
+  runtime: sh

@@ -1,0 +1,55 @@
+name: floorplan-generation
+description: Multi-agent GitCAD workflow for generating validated OpenGeometry floorplans.
+
+inputs:
+  prompt:
+    type: string
+    default: "Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows."
+
+steps:
+  repo_inspection:
+    agent: agents/repo-inspector
+    outputs:
+      - workflow/repo-inspection.json
+
+  spec_parse:
+    agent: agents/spec-parser
+    depends_on:
+      - repo_inspection
+    outputs:
+      - src/generated/floorplan.spec.json
+
+  geometry_plan:
+    agent: agents/geometry-planner
+    depends_on:
+      - spec_parse
+    outputs:
+      - src/generated/floorplan.layout.json
+
+  code_generate:
+    agent: agents/code-generator
+    depends_on:
+      - geometry_plan
+    outputs:
+      - src/generated/floorplan.ts
+
+  validate:
+    agent: agents/validator
+    depends_on:
+      - code_generate
+    outputs:
+      - src/generated/geometry-report.md
+
+  repair:
+    agent: agents/repair
+    depends_on:
+      - validate
+    condition: validation_failed
+    max_attempts: 2
+
+  report:
+    agent: agents/reporter
+    depends_on:
+      - validate
+    outputs:
+      - workflow/workflow-report.md

@@ -1,0 +1,17 @@
+spec_version: "0.1.0"
+name: gitcad-reporter
+version: "0.1.0"
+description: GitCAD reporter sub-agent.
+author: TheHouseKraft
+license: MIT
+role: reporter
+
+model:
+  preferred: "google:gemini-2.0-flash"
+  fallback:
+    - "anthropic:claude-sonnet-4-5-20251001"
+    - "openai:gpt-4o"
+
+tools:
+  - read
+  - git_diff

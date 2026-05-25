@@ -1,0 +1,11 @@
+name: run_validation
+description: Run the deterministic GitCAD generator and geometry validation pipeline.
+input_schema:
+  properties:
+    prompt:
+      type: string
+      description: Optional architectural prompt to pass to the generator.
+  required: []
+implementation:
+  script: scripts/run-validation.sh
+  runtime: sh

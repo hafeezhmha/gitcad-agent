@@ -1,0 +1,19 @@
+environment: default
+
+models:
+  native:
+    preferred: "google:gemini-2.0-flash"
+    fallback:
+      - "anthropic:claude-sonnet-4-5-20251001"
+      - "openai:gpt-4o"
+  adapter:
+    openrouter:
+      model: "google/gemini-2.5-pro"
+      api_key_env: OPENROUTER_API_KEY
+      site_url_env: OPENROUTER_SITE_URL
+      site_name_env: OPENROUTER_SITE_NAME
+
+runtime:
+  max_repair_attempts: 2
+  generated_dir: src/generated
+  llm_required: false

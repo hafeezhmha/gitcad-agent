@@ -1,0 +1,12 @@
+{
+  "live": false,
+  "provider": "deterministic-fallback",
+  "model": null,
+  "originalPrompt": "Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows.",
+  "normalizedPrompt": "Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows.",
+  "assumptions": [
+    "No live provider was available, so the original prompt was sent to the deterministic workflow."
+  ],
+  "unsupportedRequests": [],
+  "fallbackReason": "No OPENROUTER_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY, or GEMINI_API_KEY was set."
+}
