@@ -1,10 +1,11 @@
 import { Cuboid, OpenGeometry, Polygon, Vector3 } from "opengeometry";
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import layout from "./floorplan.layout.json";
 
 type RenderMode = "plan" | "model";
 type RenderOptions = { mode?: RenderMode; wasmURL: string };
-type WallLayout = { start: [number, number]; end: [number, number] };
+type WallLayout = { id?: string; start: [number, number]; end: [number, number] };
 type RoomLayout = {
   id: string;
   name: string;
@@ -13,6 +14,22 @@ type RoomLayout = {
   width: number;
   depth: number;
   color: number;
+};
+type OpeningLayout = {
+  id: string;
+  type: "door" | "window";
+  hostWallId: string;
+  width: number;
+  station: number;
+  height: number;
+  sillHeight?: number;
+  label: string;
+};
+type WallOpening = OpeningLayout & {
+  clampedWidth: number;
+  clampedStation: number;
+  start: number;
+  end: number;
 };
 
 const PALETTE = {
@@ -68,6 +85,18 @@ function makeScene(container: HTMLElement, mode: RenderMode) {
   }
   camera.lookAt(centerX, 0, centerZ);
 
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.target.set(centerX, 0, centerZ);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.screenSpacePanning = true;
+  controls.enableRotate = mode === "model";
+  controls.enablePan = true;
+  controls.enableZoom = true;
+  controls.minDistance = 5;
+  controls.maxDistance = 34;
+  controls.update();
+
   const ambient = new THREE.AmbientLight(0xffffff, 0.75);
   const sun = new THREE.DirectionalLight(0xffffff, 1.1);
   sun.position.set(centerX + 5, 12, centerZ + 3);
@@ -87,7 +116,17 @@ function makeScene(container: HTMLElement, mode: RenderMode) {
     }
   };
   window.addEventListener("resize", onResize);
-  return { scene, renderer, camera, dispose: () => window.removeEventListener("resize", onResize) };
+  return {
+    scene,
+    renderer,
+    camera,
+    controls,
+    dispose: () => {
+      window.removeEventListener("resize", onResize);
+      controls.dispose();
+      renderer.dispose();
+    },
+  };
 }
 
 function addLabel(scene: THREE.Scene, text: string, x: number, z: number) {
@@ -109,55 +148,129 @@ function addLabel(scene: THREE.Scene, text: string, x: number, z: number) {
   scene.add(sprite);
 }
 
-function addWall(scene: THREE.Scene, wall: WallLayout, thickness: number, height: number, mode: RenderMode) {
+function wallAngle(wall: WallLayout): number {
+  return Math.atan2(wall.end[1] - wall.start[1], wall.end[0] - wall.start[0]);
+}
+
+function stationPoint(wall: WallLayout, station: number): [number, number] {
   const length = wallLength(wall);
-  const angle = Math.atan2(wall.end[1] - wall.start[1], wall.end[0] - wall.start[0]);
-  const centerX = (wall.start[0] + wall.end[0]) / 2;
-  const centerZ = (wall.start[1] + wall.end[1]) / 2;
-  const wallHeight = mode === "plan" ? 0.08 : height;
+  const t = length === 0 ? 0 : Math.max(0, Math.min(1, station / length));
+  return [
+    wall.start[0] + (wall.end[0] - wall.start[0]) * t,
+    wall.start[1] + (wall.end[1] - wall.start[1]) * t,
+  ];
+}
+
+function addWallCuboid(
+  scene: THREE.Scene,
+  wall: WallLayout,
+  station: number,
+  width: number,
+  thickness: number,
+  height: number,
+  color: number,
+  y = height / 2,
+) {
+  if (width <= 0.02 || height <= 0.02) return;
+  const [centerX, centerZ] = stationPoint(wall, station);
   const cuboid = new Cuboid({
-    center: point(0, wallHeight / 2, 0),
-    width: length,
-    height: wallHeight,
+    center: point(0, y, 0),
+    width,
+    height,
     depth: thickness,
-    color: PALETTE.wall,
+    color,
   });
   cuboid.setPlacement({
     translation: point(centerX, 0, centerZ),
-    rotation: point(0, -angle, 0),
+    rotation: point(0, -wallAngle(wall), 0),
     scale: point(1, 1, 1),
   });
   cuboid.outline = true;
   scene.add(cuboid);
 }
 
-function addOpeningMarker(scene: THREE.Scene, wall: WallLayout, station: number, width: number, color: number, y: number) {
+function normalizeOpenings(wall: WallLayout, openings: OpeningLayout[]): WallOpening[] {
   const length = wallLength(wall);
-  const t = Math.max(0, Math.min(1, station / length));
-  const x = wall.start[0] + (wall.end[0] - wall.start[0]) * t;
-  const z = wall.start[1] + (wall.end[1] - wall.start[1]) * t;
-  const angle = Math.atan2(wall.end[1] - wall.start[1], wall.end[0] - wall.start[0]);
-  const marker = new Cuboid({
-    center: point(0, y, 0),
-    width,
-    height: 0.12,
-    depth: 0.42,
-    color,
-  });
-  marker.setPlacement({
-    translation: point(x, 0, z),
-    rotation: point(0, -angle, 0),
-    scale: point(1, 1, 1),
-  });
-  scene.add(marker);
+  return openings
+    .map((opening) => {
+      const clampedWidth = Math.min(opening.width, Math.max(0.2, length - 0.4));
+      const halfWidth = clampedWidth / 2;
+      const clampedStation = Math.max(halfWidth + 0.1, Math.min(length - halfWidth - 0.1, opening.station));
+      return {
+        ...opening,
+        clampedWidth,
+        clampedStation,
+        start: clampedStation - halfWidth,
+        end: clampedStation + halfWidth,
+      };
+    })
+    .sort((left, right) => left.start - right.start);
+}
+
+function addDoor(scene: THREE.Scene, wall: WallLayout, door: WallOpening, thickness: number, wallHeight: number, mode: RenderMode) {
+  if (mode === "plan") {
+    addWallCuboid(scene, wall, door.clampedStation, door.clampedWidth, thickness + 0.16, 0.12, PALETTE.door, 0.1);
+    return;
+  }
+  const doorHeight = Math.min(door.height || 2.1, wallHeight - 0.15);
+  const headerHeight = Math.max(0, wallHeight - doorHeight);
+  if (headerHeight > 0.04) {
+    addWallCuboid(scene, wall, door.clampedStation, door.clampedWidth, thickness, headerHeight, PALETTE.wall, doorHeight + headerHeight / 2);
+  }
+  addWallCuboid(scene, wall, door.clampedStation, door.clampedWidth * 0.92, thickness * 0.38, doorHeight, PALETTE.door, doorHeight / 2);
+}
+
+function addWindow(scene: THREE.Scene, wall: WallLayout, windowDef: WallOpening, thickness: number, wallHeight: number, mode: RenderMode) {
+  if (mode === "plan") {
+    addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth, thickness + 0.12, 0.12, PALETTE.glass, 0.11);
+    return;
+  }
+
+  const sillHeight = Math.max(0.45, Math.min(windowDef.sillHeight ?? 0.9, wallHeight - 0.8));
+  const glassHeight = Math.max(0.5, Math.min(windowDef.height || 1, wallHeight - sillHeight - 0.25));
+  const lintelHeight = Math.max(0, wallHeight - sillHeight - glassHeight);
+  const frameThickness = 0.08;
+
+  addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth, thickness, sillHeight, PALETTE.wall, sillHeight / 2);
+  if (lintelHeight > 0.04) {
+    addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth, thickness, lintelHeight, PALETTE.wall, sillHeight + glassHeight + lintelHeight / 2);
+  }
+
+  const frameY = sillHeight + glassHeight / 2;
+  addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth * 0.92, thickness * 0.2, glassHeight * 0.82, PALETTE.glass, frameY);
+  addWallCuboid(scene, wall, windowDef.clampedStation - windowDef.clampedWidth / 2 + frameThickness / 2, frameThickness, thickness * 0.36, glassHeight, PALETTE.frame, frameY);
+  addWallCuboid(scene, wall, windowDef.clampedStation + windowDef.clampedWidth / 2 - frameThickness / 2, frameThickness, thickness * 0.36, glassHeight, PALETTE.frame, frameY);
+  addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth, thickness * 0.36, frameThickness, PALETTE.frame, sillHeight + frameThickness / 2);
+  addWallCuboid(scene, wall, windowDef.clampedStation, windowDef.clampedWidth, thickness * 0.36, frameThickness, PALETTE.frame, sillHeight + glassHeight - frameThickness / 2);
+}
+
+function addWall(scene: THREE.Scene, wall: WallLayout, openings: OpeningLayout[], thickness: number, height: number, mode: RenderMode) {
+  const length = wallLength(wall);
+  const wallHeight = mode === "plan" ? 0.08 : height;
+  const normalizedOpenings = normalizeOpenings(wall, openings);
+  let cursor = 0;
+
+  for (const opening of normalizedOpenings) {
+    const segmentStart = cursor;
+    const segmentEnd = Math.max(segmentStart, opening.start);
+    addWallCuboid(scene, wall, (segmentStart + segmentEnd) / 2, segmentEnd - segmentStart, thickness, wallHeight, PALETTE.wall);
+
+    if (opening.type === "door") {
+      addDoor(scene, wall, opening, thickness, height, mode);
+    } else {
+      addWindow(scene, wall, opening, thickness, height, mode);
+    }
+    cursor = Math.max(cursor, opening.end);
+  }
+
+  addWallCuboid(scene, wall, (cursor + length) / 2, length - cursor, thickness, wallHeight, PALETTE.wall);
 }
 
 export async function renderGeneratedFloorplan(container: HTMLElement, options: RenderOptions) {
   await OpenGeometry.create({ wasmURL: options.wasmURL });
   const built: any[] = [];
-  const walls = new Map<string, WallLayout>();
   const mode = options.mode ?? "plan";
-  const { scene, renderer, camera, dispose } = makeScene(container, mode);
+  const { scene, renderer, camera, controls, dispose } = makeScene(container, mode);
 
   const floor = new Cuboid({
     center: point(layout.building.x + layout.building.width / 2, -0.025, layout.building.z + layout.building.depth / 2),
@@ -180,29 +293,40 @@ export async function renderGeneratedFloorplan(container: HTMLElement, options: 
     built.push(zone);
   }
 
+  const openingsByWall = new Map<string, OpeningLayout[]>();
+  for (const opening of [...layout.doors, ...layout.windows] as OpeningLayout[]) {
+    const existing = openingsByWall.get(opening.hostWallId) ?? [];
+    existing.push(opening);
+    openingsByWall.set(opening.hostWallId, existing);
+  }
+
   for (const wall of layout.walls) {
-    walls.set(wall.id, wall as WallLayout);
-    addWall(scene, wall as WallLayout, layout.wallDefaults.thickness, layout.wallDefaults.height, mode);
+    addWall(
+      scene,
+      wall as WallLayout,
+      openingsByWall.get(wall.id) ?? [],
+      layout.wallDefaults.thickness,
+      layout.wallDefaults.height,
+      mode,
+    );
   }
 
-  for (const doorDef of layout.doors) {
-    const host = walls.get(doorDef.hostWallId);
-    const wall = layout.walls.find((candidate) => candidate.id === doorDef.hostWallId) as WallLayout | undefined;
-    if (!host || !wall) continue;
-    const width = Math.min(doorDef.width, Math.max(0.7, wallLength(wall) - 0.3));
-    addOpeningMarker(scene, wall, doorDef.station, width, PALETTE.door, mode === "plan" ? 0.12 : 1.05);
-  }
+  let frameId = 0;
+  const animate = () => {
+    controls.update();
+    renderer.render(scene, camera);
+    frameId = window.requestAnimationFrame(animate);
+  };
+  animate();
 
-  for (const windowDef of layout.windows) {
-    const host = walls.get(windowDef.hostWallId);
-    const wall = layout.walls.find((candidate) => candidate.id === windowDef.hostWallId) as WallLayout | undefined;
-    if (!host || !wall) continue;
-    const width = Math.min(windowDef.width, Math.max(0.5, wallLength(wall) - 0.3));
-    addOpeningMarker(scene, wall, windowDef.station, width, PALETTE.glass, mode === "plan" ? 0.13 : 1.45);
-  }
-
-  renderer.render(scene, camera);
-  return { layout, elements: built, dispose };
+  return {
+    layout,
+    elements: built,
+    dispose: () => {
+      window.cancelAnimationFrame(frameId);
+      dispose();
+    },
+  };
 }
 
 export { layout };
