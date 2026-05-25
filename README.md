@@ -2,7 +2,7 @@
 
 GitCAD Agent is a GitAgent-style workflow that turns constrained architectural prompts into validated OpenGeometry floorplan artifacts inside a repository.
 
-It uses the repository itself as the agent workspace: the agent identity, rules, skills, tools, memory, generated CAD artifacts, validation report, preview, and git diff are all visible as files.
+It uses the repository itself as the agent workspace: the agent identity, rules, skills, tools, generated CAD artifacts, validation report, preview, and git diff are all visible as files.
 
 ## Overview
 
@@ -114,7 +114,7 @@ npm run build
 npm run dev
 ```
 
-`npm run workflow` is the multi-agent demo command. It executes the visible GitCAD roles in order, writes `workflow/repo-inspection.json`, regenerates the CAD artifacts, validates geometry, and writes `workflow/workflow-report.md`.
+`npm run workflow` executes the visible GitCAD roles in order, writes `workflow/repo-inspection.json`, regenerates the CAD artifacts, validates geometry, and writes `workflow/workflow-report.md`.
 
 `npm run workflow:llm` runs the live adapter first when an API key is configured, writes `workflow/llm-adapter.json`, then hands the normalized constrained prompt to the same deterministic workflow. If no key is configured, it records a deterministic fallback instead of failing. Set `GITCAD_LLM_REQUIRED=1` to make missing or failed live calls fail the command.
 

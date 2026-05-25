@@ -22,7 +22,6 @@ tools:
   - cli
   - read
   - write
-  - memory
   - run_validation
   - git_diff
 
