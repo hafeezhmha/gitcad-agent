@@ -2,19 +2,15 @@
 
 GitCAD Agent is a GitAgent-style workflow that turns constrained architectural prompts into validated OpenGeometry floorplan artifacts inside a repository.
 
-This project was built for the Lyzr Builder Challenge / GitAgent Hiring Challenge. It uses the repository itself as the agent workspace: the agent identity, rules, skills, tools, memory, generated CAD artifacts, validation report, preview, and git diff are all visible as files.
+It uses the repository itself as the agent workspace: the agent identity, rules, skills, tools, memory, generated CAD artifacts, validation report, preview, and git diff are all visible as files.
 
-## Challenge Fit
+## Overview
 
-Yes, GitCAD fits the challenge requirements:
+GitCAD treats AI-assisted CAD generation like a software workflow. A design prompt is converted into a constrained floorplan spec, planned into geometry, rendered with OpenGeometry / Three.js, validated, and written back into the repository as reviewable artifacts.
 
-- Built around GitAgent-style repo-native workflows, not just a chat UI
-- Uses TypeScript / JavaScript with Vite, Three.js, and OpenGeometry
-- Ships a working demo path with deterministic generation and optional LLM adapter support
-- Shows agent workflow design through delegated roles, skills, tools, and generated repo artifacts
-- Produces a browser CAD preview plus validation reports that can be reviewed in git
+The project is built with TypeScript / JavaScript, Vite, Three.js, and OpenGeometry. The deterministic workflow runs without API keys, while the optional LLM adapter can normalize live prompts before handing them to the same validation-first generation path.
 
-The preferred stack lists Python, TypeScript / JavaScript, FastAPI, and Next.js. This submission uses TypeScript / JavaScript. It does not need FastAPI or Next.js for the MVP because the core product point is the GitAgent workflow and CAD artifact generation, but those could be added later as a hosted API or web app shell.
+The core product bet is that CAD agents should leave behind files a builder can inspect, validate, preview, and commit, instead of only returning a chat answer.
 
 ## Scope
 
