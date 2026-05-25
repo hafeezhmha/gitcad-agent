@@ -145,17 +145,6 @@ Workflow complete: PASS
 Create a 12m x 8m apartment floorplan with a living room, bedroom, kitchen, bathroom, one main door, and two windows.
 ```
 
-## Demo Video Outline
-
-For the 3-5 minute challenge video:
-
-1. Show the GitAgent structure: `agent.yaml`, `agents/`, `skills/`, `tools/`, `memory/`, and `workflows/`
-2. Explain the workflow handoff: prompt -> spec -> layout -> renderer -> validator -> reporter
-3. Run `npm run workflow`
-4. Show `src/generated/geometry-report.md` and `workflow/workflow-report.md`
-5. Run `npm run dev` and open `http://localhost:5566/gitcad-agent.html`
-6. Show `git diff` to demonstrate auditable repository changes
-
 ## Thought Process
 
 The product idea is to make AI-assisted CAD generation behave like software development. Instead of producing an unverifiable answer, the agent creates files, validates constraints, and leaves reviewable changes in git. The narrow floorplan scope keeps the demo shippable while still showing agent workflow design, validation, and a real visual output.
